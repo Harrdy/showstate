@@ -38,14 +38,14 @@ fi
 
 for ((a=1; a <= $CTD; a++))
 do
-SPLIT="$SPLIT#"
+SPLIT="$SPLIT-"
 done
 
 echo $SPLIT
 if [ $SHOW_SMART -gt 0 ]; then
-	printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s # %8s # " "Disk" "State" "Total" "Used" "Free" "Mounted" "Temp" "PowerOn"
+	printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s # %8s  " "Disk" "State" "Total" "Used" "Free" "Mounted" "Temp" "PowerOn"
 else
-	printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s #" "Disk" "State" "Total" "Used" "Free" "Mounted" "Temp"
+	printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s  " "Disk" "State" "Total" "Used" "Free" "Mounted" "Temp"
 fi
 echo ""
 echo $SPLIT
@@ -80,7 +80,7 @@ do
 		if [ $SHOW_SMART -gt 0 ]; then
 			printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s # %8s # " $i $DISK_STATE $DISK_SPACE_TOTAL $DISK_SPACE_USED $DISK_SPACE_FREE $DISK_MOUNT $DISK_TEMP $DISK_SMART_POWERON
 		else
-			printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s #" $i $DISK_STATE $DISK_SPACE_TOTAL $DISK_SPACE_USED $DISK_SPACE_FREE $DISK_MOUNT $DISK_TEMP
+			printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s # " $i $DISK_STATE $DISK_SPACE_TOTAL $DISK_SPACE_USED $DISK_SPACE_FREE $DISK_MOUNT $DISK_TEMP
 		fi
 		echo ""
 	fi
