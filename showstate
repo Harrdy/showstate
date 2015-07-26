@@ -1,0 +1,89 @@
+#!/bin/bash
+
+MAX_LENGTH=10
+SHOW_SMART=0
+
+case "$1" in
+	"--smart")
+		SHOW_SMART=1
+		;;
+
+	-h|--h|-help|--help)
+		echo "Usage $0 {--smart}"
+		exit 0
+		;;
+esac
+
+
+
+for disk in {a..z}
+do
+	if [ -e /dev/sd$disk ]; then
+		i="/dev/sd$disk"
+		DISK_MOUNT=`df |grep $i|awk '{print $NF}'`
+		if [ ${#DISK_MOUNT} -gt $MAX_LENGTH ]; then
+			MAX_LENGTH=${#DISK_MOUNT}
+		fi
+	fi
+done
+
+MAX_LENGTH=$(expr $MAX_LENGTH + 1)
+SPLIT=""
+
+if [ $SHOW_SMART -gt 0 ]; then
+	CTD=$(expr 83 + $MAX_LENGTH)
+else
+	CTD=$(expr 72 + $MAX_LENGTH)
+fi
+
+for ((a=1; a <= $CTD; a++))
+do
+SPLIT="$SPLIT#"
+done
+
+echo $SPLIT
+if [ $SHOW_SMART -gt 0 ]; then
+	printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s # %8s # " "Disk" "State" "Total" "Used" "Free" "Mounted" "Temp" "PowerOn"
+else
+	printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s #" "Disk" "State" "Total" "Used" "Free" "Mounted" "Temp"
+fi
+echo ""
+echo $SPLIT
+
+for disk in {a..z}
+do
+	if [ -e /dev/sd$disk ]; then
+		i="/dev/sd$disk"
+		DISK_MOUNT=`df |grep $i|awk '{print $NF}'`
+		DISK_SPACE_TOTAL=`df -h|grep $i|tr -s " " | cut -d ' ' -f 2`
+		DISK_SPACE_USED=`df -h|grep $i|tr -s " " | cut -d ' ' -f 3`
+		DISK_SPACE_FREE=`df -h|grep $i|tr -s " " | cut -d ' ' -f 4`
+		DISK_TEMP="-"
+
+		DISK_SMART_POWERON="-"
+
+		# check is disk not sleeping
+		DISK_STATE=`hdparm -C $i | grep state | awk '{print $NF}'`
+
+	        if [ $DISK_STATE != "standby" ]; then
+			if [ ! -z "$1" ]; then
+				DISK_SMART_POWERON=`smartctl -a $i|grep Power_On_Hours|awk '{print $NF}'`
+			else
+				DISK_SMART_POWERON="-"
+			fi
+
+			if [ $i != "/dev/sda" ]; then
+				DISK_TEMP=$(hddtemp -q $i|awk '{ print $NF}' | awk -F '°' '{ print $1}')
+			fi
+		fi
+
+		if [ $SHOW_SMART -gt 0 ]; then
+			printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s # %8s # " $i $DISK_STATE $DISK_SPACE_TOTAL $DISK_SPACE_USED $DISK_SPACE_FREE $DISK_MOUNT $DISK_TEMP $DISK_SMART_POWERON
+		else
+			printf "# %10s # %14s # %7s # %7s # %7s # %"$MAX_LENGTH"s # %5s #" $i $DISK_STATE $DISK_SPACE_TOTAL $DISK_SPACE_USED $DISK_SPACE_FREE $DISK_MOUNT $DISK_TEMP
+		fi
+		echo ""
+	fi
+done
+
+echo $SPLIT
