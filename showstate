@@ -72,9 +72,7 @@ do
 				DISK_SMART_POWERON="-"
 			fi
 
-			if [ $i != "/dev/sda" ]; then
-				DISK_TEMP=$(hddtemp -q $i|awk '{ print $NF}' | awk -F '°' '{ print $1}')
-			fi
+			DISK_TEMP=$(hddtemp -q $i|awk '{ print $NF}' | awk -F '°' '{ print $1}')
 		fi
 
 		if [ $SHOW_SMART -gt 0 ]; then
